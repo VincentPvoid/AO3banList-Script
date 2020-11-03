@@ -2,7 +2,7 @@
 // @name         AO3屏蔽某作者文章
 // @namespace    https://github.com/VincentPvoid
 // @version      0.1
-// @description  try to take over the world!
+// @description  一个简单的屏蔽AO3作者的油猴脚本
 // @author       VincentPViod
 // @match        https://archiveofourown.org/*
 // @grant        none
