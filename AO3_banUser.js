@@ -127,6 +127,7 @@
       // 监听键盘事件，当e.target为input和textarea时不触发事件
       // 注意：kudo键本身为input；如果focus在kudo键上也不能触发事件
       if (e.keyCode === 75 && !(e.target.nodeName === 'INPUT' || e.target.nodeName === 'TEXTAREA')) {
+        window.scroll(0,btnKudo.offsetTop);
         btnKudo.click();
         // console.log('kudos')
       }
