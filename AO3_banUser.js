@@ -54,7 +54,7 @@
     </div>
     <div class="setting-items">
       <label>
-        <input type="checkbox"> 显示屏蔽作者按钮
+        <input type="checkbox" checked> 显示屏蔽作者按钮
       </label>
     </div>
     <div class="setting-items">
