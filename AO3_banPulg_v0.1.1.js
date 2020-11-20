@@ -191,7 +191,7 @@
   authors = [].slice.call(authors);
 
   // 如果选择屏蔽作者功能打开
-  if (setting.useBanAuthors && banAuthorsList.length) {
+  if (setting.useBanAuthors && banAuthorsList.length && authors.length) {
     for (let i = 0; i < banAuthorsList.length; i++) {
       let tars = authors.filter((item) => item.innerHTML === banAuthorsList[i]);
       tars.forEach((item) => {
@@ -317,22 +317,40 @@
   })
 
 
+  // 选中显示/隐藏评论按钮
+  let showCommentBtn = document.querySelector('#show_comments_link')
+
   // 如果屏蔽用户功能打开
-  if (setting.useBanUsers && banUsersList.length) {
+  if (setting.useBanUsers && banUsersList.length && showCommentBtn) {
     // 选择当前显示所有评论（不包括被折叠评论）
     // 注意：评论列表为异步获取，因此在加载页面时无法直接获取
     // let comments = document.querySelectorAll('#comments_placeholder li.comment')
 
     // 判断当前评论按钮状态（有Hide表示评论列表已经展开）
-    let showCommentBtn = document.querySelector('#show_comments_link')
-    if (showCommentBtn) {
-      if (showCommentBtn.innerText.indexOf('Hide') != -1) {
-        clearInterval(watchCommentsListTimer);
-        let usersComments = document.querySelectorAll('#comments_placeholder li.comment .heading a')
-        filterUserList(banUsersList, usersComments);
+    if (showCommentBtn.innerText.indexOf('Hide') != -1) {
+      clearInterval(watchCommentsListTimer);
+      let usersComments = document.querySelectorAll('#comments_placeholder li.comment .heading a')
+      filterUserList(banUsersList, usersComments);
 
+      watchCommentsListTimer = setInterval(() => {
+        // console.log(456)
+        let newUsersComments = document.querySelectorAll('#comments_placeholder li.comment .heading a')
+        if (newUsersComments[0] != usersComments[0]) {
+          filterUserList(banUsersList, newUsersComments);
+          usersComments = newUsersComments;
+        }
+      }, 200)
+    }
+
+    // 给评论按钮添加点击事件
+    showCommentBtn.addEventListener('click', function () {
+      clearInterval(watchCommentsListTimer);
+      let usersComments = document.querySelectorAll('#comments_placeholder li.comment .heading a')
+      // 点击按钮时按钮依然保持之前的状态
+      // 如果点击时有Hide表示收起；没有表示展开
+      if (this.innerText.indexOf('Hide') === -1) {
         watchCommentsListTimer = setInterval(() => {
-          // console.log(456)
+          // console.log(123)
           let newUsersComments = document.querySelectorAll('#comments_placeholder li.comment .heading a')
           if (newUsersComments[0] != usersComments[0]) {
             filterUserList(banUsersList, newUsersComments);
@@ -340,24 +358,8 @@
           }
         }, 200)
       }
-
-      showCommentBtn.addEventListener('click', function () {
-        clearInterval(watchCommentsListTimer);
-        let usersComments = document.querySelectorAll('#comments_placeholder li.comment .heading a')
-        // 点击按钮时按钮依然保持之前的状态
-        // 如果点击时有Hide表示收起；没有表示展开
-        if (this.innerText.indexOf('Hide') === -1) {
-          watchCommentsListTimer = setInterval(() => {
-            // console.log(123)
-            let newUsersComments = document.querySelectorAll('#comments_placeholder li.comment .heading a')
-            if (newUsersComments[0] != usersComments[0]) {
-              filterUserList(banUsersList, newUsersComments);
-              usersComments = newUsersComments;
-            }
-          }, 200)
-        }
-      })
-    }
+    })
+    
   }
 
 
@@ -470,6 +472,7 @@
   }
 
   // 过滤用户函数
+  // banUsersList当前保存的屏蔽用户列表；usersComments当前所有评论列表
   function filterUserList(banUsersList, usersComments) {
     // console.log('--------',usersComments)
     usersComments = [].slice.call(usersComments);
