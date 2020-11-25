@@ -212,7 +212,10 @@
 
   // 把开关插入左上用户导航栏
   let greeting = document.querySelector('#greeting') ? document.querySelector('#greeting') : document.querySelector('#login');
-  greeting.insertBefore(btnOpenSetting, greeting.children[0]);
+  // 如果没有该结构，则不插入
+  if (greeting != null) {
+    greeting.insertBefore(btnOpenSetting, greeting.children[0]);
+  }
 
 
   // 关闭按钮事件
