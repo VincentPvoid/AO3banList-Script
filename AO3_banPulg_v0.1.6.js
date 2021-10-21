@@ -34,9 +34,7 @@
   // 监视评论列表的计时器
   let watchCommentsListTimer = null;
 
-  // 清除无效作者发送请求的失败列表
-  let failedReqList = []
-
+  
   // 生成打开设置菜单按钮
   let btnOpenSetting = document.createElement('div');
   btnOpenSetting.setAttribute('id', 'vpv_AO3_switch_btn');
@@ -399,18 +397,18 @@
   let btnClearInvaildAuthors = document.querySelector('.inner-cover-authors .btn-clear-invalid-authors')
   // let clearListTip = document.querySelector('.inner-cover-authors .clear-list-tip')
   btnClearInvaildAuthors.addEventListener('click', () => {
-    if(banAuthorsList.length === 0) return;
-    if(banAuthorsList.includes('orphan_account')){
+    if (banAuthorsList.length === 0) return;
+    if (banAuthorsList.includes('orphan_account')) {
       banAuthorsList = banAuthorsList.filter(item => item != 'orphan_account')
       window.localStorage.setItem('vpv_ban_list', JSON.stringify(banAuthorsList));
       createBanList(banAuthorsList, banAuthorsTable)
       clearListTip.innerHTML = `请勿添加orphan_account到屏蔽名单中，如需屏蔽，请使用屏蔽orphan_account功能；当前已清除orphan_account，请重新开始清理功能`
       return;
     }
-   
+
     let invaildArr = [];
     // let promiseArr = [];
-    let failedReqList = []
+    let failedReqList = []  // 清除无效作者发送请求的失败列表
     let num = 0;
     // let isHasOrphanAcc = false;
     const baseUrl = 'https://archiveofourown.org/users/'
@@ -418,75 +416,55 @@
     // banAuthorsList.forEach(item => {
     //   promiseArr.push(baseSendRequest(baseUrl + item))
     // })
-    
+
     sendList(banAuthorsList)
 
-    function sendList(listArr){
+    function sendList(listArr) {
       clearListTip.innerHTML = '正在处理，请稍后（请勿重复点击）；如不想继续清理，请刷新页面'
       let promiseArr = [];
       listArr.forEach(item => {
         promiseArr.push(baseSendRequest(baseUrl + item))
       })
       Promise.all(promiseArr)
-      .then(res => {
-        clearListTip.innerHTML = ''
-        failedReqList = []
-        invaildArr = [];
-        res.forEach((xhr, index) => {
-          // console.log(item)
-          // if (item.indexOf('Retry later') != -1) return;
-          if (xhr.status >= 200 && xhr.status < 300) {
-            let response = xhr.response;
-            if (response.indexOf(keyword) === -1) {
-              invaildArr.push(listArr[index]) 
+        .then(res => {
+          clearListTip.innerHTML = ''
+          failedReqList = []
+          invaildArr = [];
+          res.forEach((xhr, index) => {
+            // console.log(item)
+            // if (item.indexOf('Retry later') != -1) return;
+            if (xhr.status >= 200 && xhr.status < 300) {
+              let response = xhr.response;
+              if (response.indexOf(keyword) === -1) {
+                invaildArr.push(listArr[index])
+              }
+            } else {
+              if (xhr.status === 429) {
+                failedReqList.push(listArr[index])
+              }
             }
-          } else {
-            if (xhr.status === 429) {
-              failedReqList.push(listArr[index]) 
-            } 
-            // else if (xhr.status === 0) {
-              // banAuthorsList = banAuthorsList.filter(item => item != 'orphan_account')
-              // window.localStorage.setItem('vpv_ban_list', JSON.stringify(banAuthorsList));
-              // createBanList(banAuthorsList, banAuthorsTable)
-              // clearListTip.innerHTML = `请勿添加orphan_account到屏蔽名单中，如确实需要屏蔽，请使用屏蔽orphan_account功能；当前已清除orphan_account，请重新开始清理功能`
-              // isHasOrphanAcc = true;
-              // return false;
-            // }
-          }
-          // return true;
-        })
-        // console.log(invaildArr)
-        // if(isHasOrphanAcc) return;
-        if (invaildArr.length) {
-          num += invaildArr.length;
-          banAuthorsList = banAuthorsList.filter(item => !invaildArr.includes(item))
-          window.localStorage.setItem('vpv_ban_list', JSON.stringify(banAuthorsList));
+            // return true;
+          })
+          // console.log(invaildArr)
+          // if(isHasOrphanAcc) return;
+          if (invaildArr.length) {
+            num += invaildArr.length;
+            banAuthorsList = banAuthorsList.filter(item => !invaildArr.includes(item))
+            window.localStorage.setItem('vpv_ban_list', JSON.stringify(banAuthorsList));
 
-          createBanList(banAuthorsList, banAuthorsTable)
-        }
-        clearListTip.innerHTML = `已清除${num}个无效作者 `
-        if (failedReqList.length) {
-          clearListTip.innerHTML += '请求过多，AO3需要冷却，冷却需要1min左右；列表清理未完成，请保持页面状态等待清理完成；如不想继续清理，请刷新页面'
-          setTimeout(() => {
-            sendList(failedReqList)
-          }, 60000)
-        }else{
-          clearListTip.innerHTML = `清理完成，已清除${num}个无效作者`
-        }
-      })
+            createBanList(banAuthorsList, banAuthorsTable)
+          }
+          clearListTip.innerHTML = `已清除${num}个无效作者 `
+          if (failedReqList.length) {
+            clearListTip.innerHTML += '请求过多，AO3需要冷却，冷却需要1min左右；列表清理未完成，请保持页面状态等待清理完成；如不想继续清理，请刷新页面'
+            setTimeout(() => {
+              sendList(failedReqList)
+            }, 60000)
+          } else {
+            clearListTip.innerHTML = `清理完成，已清除${num}个无效作者`
+          }
+        })
     }
-    // .catch((err) => {
-    //   // console.log(err);
-    //   if (err === 429) {
-    //     clearListTip.innerHTML = '请求过多，AO3需要冷却'
-    //   }
-    //   if (err === 0) {
-    //     banAuthorsList = banAuthorsList.filter(item => item != 'orphan_account')
-    //     window.localStorage.setItem('vpv_ban_list', JSON.stringify(banAuthorsList));
-    //     createBanList(banAuthorsList, banAuthorsTable)
-    //     clearListTip.innerHTML = `请勿添加orphan_account到屏蔽名单中，如确实需要屏蔽，请使用屏蔽orphan_account功能`
-    //   }
-    // });
 
   })
 
@@ -801,7 +779,6 @@
           // }
           resolve(xhr)
         }
-        // console.log(xhr, url)
       }
     })
   }
