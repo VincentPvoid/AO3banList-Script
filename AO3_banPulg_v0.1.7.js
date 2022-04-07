@@ -332,10 +332,13 @@
         }
         if (setting.filterKwType === 'ALL' || setting.filterKwType === 'SUMMARY') {
           temp = workLis[i].querySelector('.summary')
-          temp = temp.innerText.replaceAll('\n\n', ' ')
-          if (temp.includes(item)) {
-            return true
+          if (temp) {
+            temp = temp.innerText.replaceAll('\n\n', ' ')
+            if (temp.includes(item)) {
+              return true
+            }
           }
+
         }
         return false;
       })
@@ -779,7 +782,7 @@
   let btnSaveFilterKw = document.querySelector('#vpv_AO3_main_cover .btn-save-filter-keywords');
   btnSaveFilterKw.addEventListener('click', () => {
     let par = btnSaveFilterKw.parentElement.parentElement;
-    
+
     // 文本区内容处理；如果为空则保存为空数组
     let temp = filterKwTextarea.value;
     if (temp) {
@@ -788,7 +791,7 @@
       temp = []
     }
     window.localStorage.setItem('vpv_filter_kw_list', JSON.stringify(temp));
-    
+
     par.style.display = 'none';
     showTopTip(topTip, '保存成功，刷新后生效');
   })
