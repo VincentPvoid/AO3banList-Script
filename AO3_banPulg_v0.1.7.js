@@ -324,14 +324,17 @@
     let tar = null;
     for (let i = 0; i < workLis.length; i++) {
       tar = filterKwList.find(item => {
+        // 如果选择过滤全部/标题；标题一定存在所以不用进行检查
         if (setting.filterKwType === 'ALL' || setting.filterKwType === 'TITLE') {
           temp = workLis[i].querySelector('.heading a:first-child')
           if (temp.innerHTML.includes(item)) {
             return true
           }
         }
+        // 如果选择过滤全部/简介
         if (setting.filterKwType === 'ALL' || setting.filterKwType === 'SUMMARY') {
           temp = workLis[i].querySelector('.summary')
+          // 简介可能为空所以需要进行检查
           if (temp) {
             temp = temp.innerText.replaceAll('\n\n', ' ')
             if (temp.includes(item)) {
