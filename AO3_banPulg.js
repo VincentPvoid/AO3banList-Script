@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AO3屏蔽某作者文章和某用户评论
 // @namespace    https://github.com/VincentPvoid
-// @version      0.1.7
+// @version      0.1.8
 // @description  一个简单的屏蔽特定AO3作者和特定用户评论的脚本
 // @author       VincentPViod
 // @match        https://archiveofourown.org/*
@@ -61,7 +61,7 @@
   mainDivCover.innerHTML = `
     <div class="vpv-AO3-main-con">
       <div class="btn-close">x</div>
-      <h3 class="title">AO3插件 v0.1.7</h3>
+      <h3 class="title">AO3插件 v0.1.8</h3>
       <div class="setting-items">
         <label>
           <input type="checkbox"> 新窗口打开文章
@@ -403,9 +403,6 @@
       btnBan.addEventListener('click', function () {
         // console.log(authors[i].textContent);
         let text = authors[i].textContent;
-        // if (text === 'orphan_account') {
-
-        // }
         if (banAuthorsList.indexOf(text) === -1) {
           banAuthorsList.push(text);
         }
@@ -502,7 +499,7 @@
       clearListTip.innerHTML = '正在处理，请稍后（请勿重复点击）；如不想继续清理，请刷新页面'
       let promiseArr = [];
       listArr.forEach(item => {
-        promiseArr.push(baseSendRequest(baseUrl + item))
+        promiseArr.push(baseSendRequest(baseUrl + handleUserNameUrl(item)))
       })
       Promise.all(promiseArr)
         .then(res => {
@@ -902,6 +899,21 @@
         }
       }
     })
+  }
+
+  // 处理用户名字符串函数（主要用于处理有别名的作者地址）
+  function handleUserNameUrl(str){
+    let tempArr = []
+    let resStr = str;
+    // 如果用户名字段含有(，表示为别名；格式：别名 (主账号名)；
+    // 地址baseUrl+主账号名/pseuds/别名
+    if(str.includes('(')){
+      tempArr = str.split(' (');
+      // 主账号名；tempArr[0]别名
+      tempArr[1] = tempArr[1].split(')')[0];
+      resStr = `${tempArr[1]}/pseuds/${tempArr[0]}`
+    }
+    return resStr;
   }
 
 
