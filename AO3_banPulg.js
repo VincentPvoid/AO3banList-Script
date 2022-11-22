@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AO3屏蔽某作者文章和某用户评论
 // @namespace    https://github.com/VincentPvoid
-// @version      0.1.8
+// @version      0.1.9
 // @description  一个简单的屏蔽特定AO3作者和特定用户评论的脚本
 // @author       VincentPViod
 // @match        https://archiveofourown.org/*
@@ -19,6 +19,7 @@
     useBanOrphans: false, // 是否屏蔽orphan_account账号
     useFilterTitleSummary: false, // 是否进行关键词屏蔽
     filterKwType: 'ALL', // 关键词屏蔽模式（标题简介/标题/简介）
+    hiddenImgs: true, // 是否隐藏文章图片
   }
   let banAuthorsList = []; // 屏蔽作者列表
   // 保存的屏蔽作者列表
@@ -61,7 +62,7 @@
   mainDivCover.innerHTML = `
     <div class="vpv-AO3-main-con">
       <div class="btn-close">x</div>
-      <h3 class="title">AO3插件 v0.1.8</h3>
+      <h3 class="title">AO3插件 v0.1.9</h3>
       <div class="setting-items">
         <label>
           <input type="checkbox"> 新窗口打开文章
@@ -111,6 +112,12 @@
           <option value="TITLE">仅标题</option>
           <option value="SUMMARY">仅简介</option>
         </select>
+      </div>
+
+      <div class="setting-items">
+        <label>
+          <input type="checkbox" checked> 隐藏文章图片
+        </label>
       </div>
 
       <div class="bottom-con">
@@ -247,6 +254,7 @@
     settingItems[4].checked = setting.useBanAuthors;
     settingItems[5].checked = setting.useBanUsers;
     settingItems[6].checked = setting.useFilterTitleSummary;
+    settingItems[7].checked = setting.hiddenImgs;
     settingSelect.value = setting.filterKwType || 'ALL';
   }
 
@@ -353,6 +361,31 @@
       item.parentElement.removeChild(item);
     })
   }
+
+  // 文章中所有图片数组
+  let articleImgs = document.querySelectorAll('#workskin img');
+  articleImgs = [].slice.call(articleImgs);
+  // 如果隐藏图片功能打开
+  if(setting.hiddenImgs){
+    let btnEle = null;
+    let parEle = null;
+    articleImgs.forEach(imgEle => {
+      imgEle.style.display = 'none';
+      btnEle = document.createElement('button');
+      // btnEle.classList.add('change-img-dis');
+      btnEle.innerHTML = '显示/隐藏图片'
+      btnEle.addEventListener('click', () => {
+        if(imgEle.style.display === 'none'){
+          imgEle.style.display = 'inline'
+        }else{
+          imgEle.style.display = 'none'
+        }
+      })
+      parEle = imgEle.parentElement;
+      parEle.appendChild(btnEle);
+    })
+  }
+
 
 
   // 打开设置菜单
@@ -814,6 +847,7 @@
     setting.useBanAuthors = settingItems[4].checked;
     setting.useBanUsers = settingItems[5].checked;
     setting.useFilterTitleSummary = settingItems[6].checked;
+    setting.hiddenImgs = settingItems[7].checked;
     setting.filterKwType = settingSelect.value;
     window.localStorage.setItem('vpv_AO3_setting', JSON.stringify(setting));
 
