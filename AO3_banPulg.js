@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AO3屏蔽某作者文章和某用户评论
 // @namespace    https://github.com/VincentPvoid
-// @version      0.1.9
+// @version      0.2.0
 // @description  一个简单的屏蔽特定AO3作者和特定用户评论的脚本
 // @author       VincentPViod
 // @match        https://archiveofourown.org/*
@@ -373,16 +373,14 @@
       imgEle.style.display = 'none';
       btnEle = document.createElement('button');
       // btnEle.classList.add('change-img-dis');
-      btnEle.innerHTML = '显示/隐藏图片'
-      btnEle.addEventListener('click', () => {
-        if(imgEle.style.display === 'none'){
-          imgEle.style.display = 'inline'
-        }else{
-          imgEle.style.display = 'none'
-        }
-      })
+      // btnEle.innerHTML = '显示/隐藏图片';
+      btnEle.innerHTML = '显示图片';
+      btnEle.style = "display:block; margin-bottom:10px;";
+      // 添加按钮点击事件
+      addImgBtnEvent(imgEle, btnEle)
       parEle = imgEle.parentElement;
-      parEle.appendChild(btnEle);
+      // parEle.appendChild(btnEle);
+      parEle.insertBefore(btnEle, imgEle)
     })
   }
 
@@ -948,6 +946,19 @@
       resStr = `${tempArr[1]}/pseuds/${tempArr[0]}`
     }
     return resStr;
+  }
+
+  // 点击按钮切换显示/隐藏图片
+  function addImgBtnEvent(imgEle, btnEle){
+    btnEle.addEventListener('click', () => {
+      if(imgEle.style.display === 'none'){
+        imgEle.style.display = 'inline';
+        btnEle.innerHTML = '隐藏图片';
+      }else{
+        imgEle.style.display = 'none';
+        btnEle.innerHTML = '显示图片';
+      }
+    })
   }
 
 
