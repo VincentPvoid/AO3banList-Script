@@ -62,7 +62,7 @@
   mainDivCover.innerHTML = `
     <div class="vpv-AO3-main-con">
       <div class="btn-close">x</div>
-      <h3 class="title">AO3插件 v0.1.9</h3>
+      <h3 class="title">AO3插件 v0.2.0</h3>
       <div class="setting-items">
         <label>
           <input type="checkbox"> 新窗口打开文章
