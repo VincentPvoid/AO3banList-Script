@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AO3屏蔽某作者文章和某用户评论
 // @namespace    https://github.com/VincentPvoid
-// @version      0.2.0
+// @version      0.2.1
 // @description  一个简单的屏蔽特定AO3作者和特定用户评论的脚本
 // @author       VincentPViod
 // @match        https://archiveofourown.org/*
@@ -366,10 +366,14 @@
   let articleImgs = document.querySelectorAll('#workskin img');
   articleImgs = [].slice.call(articleImgs);
   // 如果隐藏图片功能打开
-  if(setting.hiddenImgs){
+  if (setting.hiddenImgs) {
     let btnEle = null;
     let parEle = null;
     articleImgs.forEach(imgEle => {
+      // 如果图片在文章标题，则不使用显示/隐藏按钮
+      if(imgEle.parentElement.tagName && imgEle.parentElement.tagName.toLowerCase() === 'h2'){
+        return false;
+      }
       imgEle.style.display = 'none';
       btnEle = document.createElement('button');
       // btnEle.classList.add('change-img-dis');
@@ -934,12 +938,12 @@
   }
 
   // 处理用户名字符串函数（主要用于处理有别名的作者地址）
-  function handleUserNameUrl(str){
+  function handleUserNameUrl(str) {
     let tempArr = []
     let resStr = str;
     // 如果用户名字段含有(，表示为别名；格式：别名 (主账号名)；
     // 地址baseUrl+主账号名/pseuds/别名
-    if(str.includes('(')){
+    if (str.includes('(')) {
       tempArr = str.split(' (');
       // 主账号名；tempArr[0]别名
       tempArr[1] = tempArr[1].split(')')[0];
@@ -949,12 +953,12 @@
   }
 
   // 点击按钮切换显示/隐藏图片
-  function addImgBtnEvent(imgEle, btnEle){
+  function addImgBtnEvent(imgEle, btnEle) {
     btnEle.addEventListener('click', () => {
-      if(imgEle.style.display === 'none'){
+      if (imgEle.style.display === 'none') {
         imgEle.style.display = 'inline';
         btnEle.innerHTML = '隐藏图片';
-      }else{
+      } else {
         imgEle.style.display = 'none';
         btnEle.innerHTML = '显示图片';
       }
